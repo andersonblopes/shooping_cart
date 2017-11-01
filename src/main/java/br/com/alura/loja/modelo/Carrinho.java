@@ -79,7 +79,6 @@ public class Carrinho {
 	}
 
 	public String toJson() {
-		// TODO Auto-generated method stub
 		return new Gson().toJson(this);
 	}
 
