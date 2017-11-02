@@ -5,6 +5,8 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.filter.LoggingFilter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,10 +19,16 @@ import junit.framework.Assert;
 public class ProjetoTest {
 
 	private HttpServer server;
+	private Client client;
+	private WebTarget target;
 
 	@Before
 	public void startServer() {
 		this.server = Server.inicializeServer();
+		ClientConfig config = new ClientConfig();
+		config.register(new LoggingFilter());
+		this.client = ClientBuilder.newClient(config);
+		this.target = client.target("http://localhost:8080");
 	}
 
 	@After
@@ -30,17 +38,13 @@ public class ProjetoTest {
 
 	@Test
 	public void testaQueAConexaoComOServidorFuncionaNoPathDeProjetos() {
-		Client client = ClientBuilder.newClient();
-		WebTarget target = client.target("http://localhost:8080");
-		String conteudo = target.path("/projetos/1").request().get(String.class);
+		String conteudo = this.target.path("/projetos/1").request().get(String.class);
 		Assert.assertTrue(conteudo.contains("<nome>Minha loja"));
 	}
 
 	@Test
 	public void testaQueBuscarUmProjetoEsperado() {
-		Client client = ClientBuilder.newClient();
-		WebTarget target = client.target("http://localhost:8080");
-		String conteudo = target.path("/projetos/1").request().get(String.class);
+		String conteudo = this.target.path("/projetos/1").request().get(String.class);
 		Projeto projeto = (Projeto) new XStream().fromXML(conteudo);
 		Assert.assertEquals("Minha loja", projeto.getNome());
 	}
